@@ -17,6 +17,15 @@ mongoose.connect("mongodb://127.0.0.1/product-catalog")
     console.error("Could not connect to MongoDB", err.message);
   });
 
+// Define a schema - design / blueprint (object structure)
+const productSchema = new mongoose.Schema({
+  name: String,
+  price: Number,
+});
+
+// Create a model - collection (table) in the database
+const Product = mongoose.model("Product", productSchema);
+
 app.get('/', (req, res) => {
   res.json({ message: "Welcome to the Product Catalog API" });
 });
