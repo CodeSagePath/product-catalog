@@ -21,13 +21,33 @@ mongoose.connect("mongodb://127.0.0.1/product-catalog")
 const productSchema = new mongoose.Schema({
   name: String,
   price: Number,
+}, {
+  timestamps: true, // createdAt, updatedAt
 });
 
 // Create a model - collection (table) in the database
 const Product = mongoose.model("Product", productSchema);
 
-app.get('/', (req, res) => {
+// GET / - welcome message
+app.get("/", (req, res) => {
   res.json({ message: "Welcome to the Product Catalog API" });
+});
+
+// POST /create-product - create a new product
+app.post("/create-product", (req, res) => {
+  const { name, price } = req.body;
+
+  const newProduct = new Product();
+  newProduct.name = name;
+  newProduct.price = price;
+
+  newProduct.save()
+    .then((savedProduct) => {
+      res.status(201).json(savedProduct);
+    })
+    .catch((err) => {
+      res.status(400).json(err);
+    });  
 });
 
 app.listen(PORT, () => {
