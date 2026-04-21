@@ -56,6 +56,23 @@ app.get("/products", (req, res) => {
     });
 });
 
+// GET /products/:id - return a single product by id
+app.get("/products/:id", (req, res) => {
+  const { id } = req.params;
+
+  Product.findById(id)
+    .then((product) => {
+      if (!product) {
+        return res.status(404).json({ error: "Product not found" });
+      }
+      res.json(product);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ error: "Something went wrong" });
+    });
+});
+
 // POST /create-product - create a new product
 app.post("/create-product", (req, res) => {
   const { name, price } = req.body;
