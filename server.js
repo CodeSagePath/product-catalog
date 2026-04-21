@@ -19,8 +19,16 @@ mongoose.connect("mongodb://127.0.0.1/product-catalog")
 
 // Define a schema - design / blueprint (object structure)
 const productSchema = new mongoose.Schema({
-  name: String,
-  price: Number,
+  name: {
+    type: String,
+    required: [true, "Name should not be empty"],
+    minLength: 5,
+  },
+  price: {
+    type: Number,
+    required: [true, "Price is required"],
+    min: [1, "Price should be minimum 1"],
+  }
 }, {
   timestamps: true, // createdAt, updatedAt
 });
@@ -47,7 +55,7 @@ app.post("/create-product", (req, res) => {
     })
     .catch((err) => {
       res.status(400).json(err);
-    });  
+    });
 });
 
 app.listen(PORT, () => {
