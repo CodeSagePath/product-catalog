@@ -2,20 +2,23 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 
+// create an instance of express
 const app = express();
 
+// middlewares
 app.use(express.json());
 app.use(cors());
 
-const PORT = 3344;
+// import error formatter
+import errorsFormatter from "./helpers/errorsFormatter.js";
 
-mongoose.connect("mongodb://127.0.0.1/product-catalog")
-  .then(() => {
-    console.log("Successfully connected to MongoDB");
-  })
-  .catch((err) => {
-    console.error("Could not connect to MongoDB", err.message);
-  });
+// import DB configuration
+import configureDB from "./config/configureDB.js";
+// connect to the database - function call
+configureDB();
+
+// define the port number
+const PORT = 3344;
 
 // Define a schema - design / blueprint (object structure)
 const productSchema = new mongoose.Schema({
@@ -39,6 +42,18 @@ const Product = mongoose.model("Product", productSchema);
 // GET / - welcome message
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to the Product Catalog API" });
+});
+
+// GET all products - return all teh products
+app.get("/products", (req, res) => {
+  Product.find()
+    .then((products) => {
+      res.json(products);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ error: "Something went wrong" });
+    });
 });
 
 // POST /create-product - create a new product
