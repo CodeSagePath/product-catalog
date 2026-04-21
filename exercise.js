@@ -1,3 +1,9 @@
+// helpers/errorsFormatter.js
+// function to format the error object and return an array of formatted errors
+// input: error object
+// output: array of formatted errors
+// error object structure
+
 function errorFormatter(error) {
   const errors = error.errors;
   const formattedErrors = [];
