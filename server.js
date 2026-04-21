@@ -31,7 +31,17 @@ app.get("/", (req, res) => {
 app.get("/products", (req, res) => {
   Product.find()
     .then((products) => {
-      res.json(products);
+      // res.json(products);
+
+      // return the response in the following format
+      /**
+       {
+          count: 2,
+          data: [ {}, {} ]
+       }
+      */
+      
+      res.json({ count: products.length, data: products });
     })
     .catch((err) => {
       console.log(err);
