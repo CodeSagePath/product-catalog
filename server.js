@@ -1,6 +1,5 @@
 import express from "express";
 import cors from "cors";
-import mongoose from "mongoose";
 
 // create an instance of express
 const app = express();
@@ -8,6 +7,9 @@ const app = express();
 // middlewares
 app.use(express.json());
 app.use(cors());
+
+// import the Product model
+import Product from "./models/product.js";
 
 // import error formatter
 import errorsFormatter from "./helpers/errorsFormatter.js";
@@ -19,25 +21,6 @@ configureDB();
 
 // define the port number
 const PORT = 3344;
-
-// Define a schema - design / blueprint (object structure)
-const productSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: [true, "Name should not be empty"],
-    minLength: 5,
-  },
-  price: {
-    type: Number,
-    required: [true, "Price is required"],
-    min: [1, "Price should be minimum 1"],
-  }
-}, {
-  timestamps: true, // createdAt, updatedAt
-});
-
-// Create a model - collection (table) in the database
-const Product = mongoose.model("Product", productSchema);
 
 // GET / - welcome message
 app.get("/", (req, res) => {
@@ -62,7 +45,7 @@ app.get("/products/:id", (req, res) => {
 
   Product.findById(id)
     .then((product) => {
-      if (!product) {
+      if (!product) { // record (Product) not found
         return res.status(404).json({ error: "Product not found" });
       }
       res.json(product);
@@ -87,6 +70,25 @@ app.post("/create-product", (req, res) => {
     })
     .catch((err) => {
       res.status(400).json(err);
+    });
+});
+
+// DELETE /products/:id - delete a product by id
+app.delete("/products/:id", (req, res) => {
+  const { id } = req.params;
+
+  Product.findByIdAndDelete(id)
+    .then((product) => {
+      if (!product) { // record (Product) not found
+        return res.status(404).json({ error: "Product not found" });
+      }
+
+      // return res.status(204).json(); // no content
+      res.json(product);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ error: "Something went wrong" });
     });
 });
 
