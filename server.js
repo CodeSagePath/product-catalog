@@ -40,7 +40,7 @@ app.get("/products", (req, res) => {
           data: [ {}, {} ]
        }
       */
-      
+
       res.json({ count: products.length, data: products });
     })
     .catch((err) => {
@@ -97,6 +97,28 @@ app.delete("/products/:id", (req, res) => {
       res.json(product);
     })
     .catch((err) => {
+      console.log(err);
+      res.status(500).json({ error: "Something went wrong" });
+    });
+});
+
+// Update a product by id - PUT /products/:id
+app.put("/products/:id", (req, res) => {
+  const { id } = req.params;
+  const { name, price } = req.body;
+
+  Product.findByIdAndUpdate(id, { name, price }, { new: true, runValidators: true })
+    .then((product) => {
+      if (!product) { // record (Product) not found
+        return res.status(404).json({ error: "Product not found" });
+      }
+      res.json(product);
+    })
+    .catch((err) => {
+      if (err.name == "ValidationError") {
+        const errMessages = errorsFormatter(err.errors);
+        return res.status(400).json(errMessages);
+      }
       console.log(err);
       res.status(500).json({ error: "Something went wrong" });
     });
