@@ -1,13 +1,12 @@
 import mongoose from "mongoose";
 
-const configureDB = () => { 
-  mongoose.connect("mongodb://127.0.0.1/product-catalog")
-    .then(() => {
-      console.log("Successfully connected to MongoDB");
-    })
-    .catch((err) => {
-      console.error("Could not connect to MongoDB", err.message);
-    });
+const configureDB = async () => {
+  try {
+    await mongoose.connect("mongodb://127.0.0.1/product-catalog");
+    console.log("Successfully connected to MongoDB", db.connections[0].name);
+  } catch (err) {
+    console.log("Error connecting to MongoDB", err.message);
+  }
 };
 
 export default configureDB;
