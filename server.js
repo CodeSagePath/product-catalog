@@ -124,6 +124,23 @@ app.put("/products/:id", (req, res) => {
     });
 });
 
+// POST request where frontend/postman sends an object of values : { values = "10, 20, 30" } expected output - { sum : 60 } 
+app.post("/sum", (req, res) => {
+
+  const { values } = req.body;
+  const valuesArray = values.split(","); // ["10", "20", "30"]
+
+  const numbersArray = valuesArray.map(ele => {
+    return Number(ele.trim());
+  }); // [10, 20, 30]
+
+  const sum = numbersArray.reduce((acc, ele) => {
+    return acc + ele;
+  }, 0);
+
+  res.status(200).json({ sum });
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running at http://127.0.0.1:${PORT}`);
 });
