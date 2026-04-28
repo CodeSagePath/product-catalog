@@ -27,26 +27,35 @@ app.get("/", (req, res) => {
   res.json({ message: "Welcome to the Product Catalog API" });
 });
 
-// GET all products - return all teh products
-app.get("/products", (req, res) => {
-  Product.find()
-    .then((products) => {
-      // res.json(products);
+// GET all products - return all the products
+// Updated to use async/await instead of .then() and .catch()
+app.get("/products", async (req, res) => {
+  try {
+    const products = await Product.find();
+    res.json(products);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: "Something went wrong" });
+  }
 
-      // return the response in the following format
-      /**
-       {
-          count: 2,
-          data: [ {}, {} ]
-       }
-      */
+  // Product.find()
+  //   .then((products) => {
+  //     // res.json(products);
 
-      res.json({ count: products.length, data: products });
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(500).json({ error: "Something went wrong" });
-    });
+  //     // return the response in the following format
+  //     /**
+  //      {
+  //         count: 2,
+  //         data: [ {}, {} ]
+  //      }
+  //     */
+
+  //     res.json({ count: products.length, data: products });
+  //   })
+  //   .catch((err) => {
+  //     console.log(err);
+  //     res.status(500).json({ error: "Something went wrong" });
+  //   });
 });
 
 // GET /products/:id - return a single product by id
