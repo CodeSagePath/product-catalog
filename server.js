@@ -93,22 +93,35 @@ app.post("/create-product", (req, res) => {
 });
 
 // DELETE /products/:id - delete a product by id
-app.delete("/products/:id", (req, res) => {
+app.delete("/products/:id", async (req, res) => {
   const { id } = req.params;
+  
+  try {
+    const product = await Product.findByIdAndDelete(id);
+    if (!product) { // record (Product) not found
+      return res.status(404).json({ error: "Product not found" });
+    }
+    res.json(product);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: "Something went wrong" });
+  }
 
-  Product.findByIdAndDelete(id)
-    .then((product) => {
-      if (!product) { // record (Product) not found
-        return res.status(404).json({ error: "Product not found" });
-      }
+  // const { id } = req.params;
 
-      // return res.status(204).json(); // no content
-      res.json(product);
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(500).json({ error: "Something went wrong" });
-    });
+  // Product.findByIdAndDelete(id)
+  //   .then((product) => {
+  //     if (!product) { // record (Product) not found
+  //       return res.status(404).json({ error: "Product not found" });
+  //     }
+
+  //     // return res.status(204).json(); // no content
+  //     res.json(product);
+  //   })
+  //   .catch((err) => {
+  //     console.log(err);
+  //     res.status(500).json({ error: "Something went wrong" });
+  //   });
 });
 
 // Update a product by id - PUT /products/:id
