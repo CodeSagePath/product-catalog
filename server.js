@@ -59,43 +59,70 @@ app.get("/products", async (req, res) => {
 });
 
 // GET /products/:id - return a single product by id
-app.get("/products/:id", (req, res) => {
+// Updated GET by ID to use async/await instead of .then() and .catch()
+app.get("/products/:id", async (req, res) => {
   const { id } = req.params;
 
-  Product.findById(id)
-    .then((product) => {
-      if (!product) { // record (Product) not found
-        return res.status(404).json({ error: "Product not found" });
-      }
-      res.json(product);
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(500).json({ error: "Something went wrong" });
-    });
+  try {
+    const product = await Product.findById(id);
+    if (!product) { // record (Product) not found
+      return res.status(404).json({ error: "Product not found" });
+    }
+    res.json(product);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: "Something went wrong" });
+  }
+
+  // Product.findById(id)
+  //   .then((product) => {
+  //     if (!product) { // record (Product) not found
+  //       return res.status(404).json({ error: "Product not found" });
+  //     }
+  //     res.json(product);
+  //   })
+  //   .catch((err) => {
+  //     console.log(err);
+  //     res.status(500).json({ error: "Something went wrong" });
+  //   });
 });
 
 // POST /create-product - create a new product
-app.post("/create-product", (req, res) => {
+// Updated POST to use async/await instead of .then() and .catch()
+app.post("/create-product", async (req, res) => {
   const { name, price } = req.body;
 
-  const newProduct = new Product();
-  newProduct.name = name;
-  newProduct.price = price;
+  try {
+    const newProduct = new Product({ name, price });
+    const savedProduct = await newProduct.save();
+    res.status(201).json(savedProduct);
+  } catch (err) {
+    if (err.name == "ValidationError") {
+      const errMessages = errorsFormatter(err.errors);
+      return res.status(400).json(errMessages);
+    }
+    console.log(err);
+    res.status(500).json({ error: "Something went wrong" });
+  }
 
-  newProduct.save()
-    .then((savedProduct) => {
-      res.status(201).json(savedProduct);
-    })
-    .catch((err) => {
-      res.status(400).json(err);
-    });
+  // const newProduct = new Product();
+  // newProduct.name = name;
+  // newProduct.price = price;
+
+  // newProduct.save()
+  //   .then((savedProduct) => {
+  //     res.status(201).json(savedProduct);
+  //   })
+  //   .catch((err) => {
+  //     res.status(400).json(err);
+  //   });
 });
 
 // DELETE /products/:id - delete a product by id
+// Updated DELETE method to use async/await instead of .then() and .catch()
 app.delete("/products/:id", async (req, res) => {
   const { id } = req.params;
-  
+
   try {
     const product = await Product.findByIdAndDelete(id);
     if (!product) { // record (Product) not found
@@ -124,26 +151,42 @@ app.delete("/products/:id", async (req, res) => {
   //   });
 });
 
-// Update a product by id - PUT /products/:id
-app.put("/products/:id", (req, res) => {
+// Update a product by id - PUT /products/:id 
+// Updated PUT method to use async/await instead of .then() and .catch()
+app.put("/products/:id", async(req, res) => {
   const { id } = req.params;
   const { name, price } = req.body;
 
-  Product.findByIdAndUpdate(id, { name, price }, { new: true, runValidators: true })
-    .then((product) => {
-      if (!product) { // record (Product) not found
-        return res.status(404).json({ error: "Product not found" });
-      }
-      res.json(product);
-    })
-    .catch((err) => {
-      if (err.name == "ValidationError") {
-        const errMessages = errorsFormatter(err.errors);
-        return res.status(400).json(errMessages);
-      }
-      console.log(err);
-      res.status(500).json({ error: "Something went wrong" });
-    });
+  try {
+    const product = await Product.findByIdAndUpdate(id, { name, price }, { new: true, runValidators: true });
+    if (!product) { // record (Product) not found
+      return res.status(404).json({ error: "Product not found" });
+    }
+    res.json(product);
+  } catch (err) {
+    if (err.name == "ValidationError") {
+      const errMessages = errorsFormatter(err.errors);
+      return res.status(400).json(errMessages);
+    }
+    console.log(err);
+    res.status(500).json({ error: "Something went wrong" });
+  } 
+
+  // Product.findByIdAndUpdate(id, { name, price }, { new: true, runValidators: true })
+  //   .then((product) => {
+  //     if (!product) { // record (Product) not found
+  //       return res.status(404).json({ error: "Product not found" });
+  //     }
+  //     res.json(product);
+  //   })
+  //   .catch((err) => {
+  //     if (err.name == "ValidationError") {
+  //       const errMessages = errorsFormatter(err.errors);
+  //       return res.status(400).json(errMessages);
+  //     }
+  //     console.log(err);
+  //     res.status(500).json({ error: "Something went wrong" });
+  //   });
 });
 
 // POST request where frontend/postman sends an object of values : { values = "10, 20, 30" } expected output - { sum : 60 } 
